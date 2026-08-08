@@ -22,21 +22,25 @@ def fetch_data(api_key) -> pd.Dataframe:
     print(df.head())
     return df
 
-def save_results(data) -> None:
-    print("test")
+def save_data(data, filepath="data/data.parquet") -> None:
+    try: 
+        data.to_parquet(filepath, engine='auto', compression='snappy', index=False)
+        print(f"Data saved in file : '{filepath}'")
+    except:
+        raise ValueError(f"Unable to save data in '{filepath}'.")
 
 def main():
     try:
         api_key = get_api_key()
         data = fetch_data(api_key)
-        save_results(data)
+        save_data(data)
 
     except FileNotFoundError as e:
         print(f"[File Error] {e}", file=sys.stderr)
         sys.exit(1)
     except requests.exceptions.RequestException as e:
         print(f"[API Error] {e}", file=sys.stderr)
-        sys.exit(2)
+        sys.exit(2) 
     except Exception as e:
         print(f"[Unexpected Error] {e}", file=sys.stderr)
         sys.exit(99)
