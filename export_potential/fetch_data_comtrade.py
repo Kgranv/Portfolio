@@ -23,14 +23,19 @@ def get_all_country() -> str:
 
 def fetch_data(api_key, product_code="TOTAL,260300", year="2025") -> pd.Dataframe:
     all_goods = "TOTAL," + product_code
+    try:
+        data = comtradeapicall.getFinalData(api_key, typeCode='C', freqCode='A', clCode='HS', period=year,
+                                        reporterCode=get_all_country(), cmdCode=all_goods, flowCode='X', partnerCode='0',
+                                        partner2Code=None,
+                                        customsCode=None, motCode='0', maxRecords=2500, format_output='JSON',
+                                        aggregateBy=None, breakdownMode='classic', countOnly=False, includeDesc=False)
+        if not data:
+            raise requests.exceptions.RequestException("Something went wrong with the request")
+        return pd.DataFrame(data)
 
-    data = comtradeapicall.getFinalData(api_key, typeCode='C', freqCode='A', clCode='HS', period=year,
-                                    reporterCode=get_all_country(), cmdCode=all_goods, flowCode='X', partnerCode='0',
-                                    partner2Code=None,
-                                    customsCode=None, motCode='0', maxRecords=2500, format_output='JSON',
-                                    aggregateBy=None, breakdownMode='classic', countOnly=False, includeDesc=False)
-
-    return pd.DataFrame(data)
+    except requests.exceptions.RequestException:
+        raise requests.exceptions.RequestException("Something went wrong with the request")
+    
 
 def save_data(data, filepath="data/data.parquet") -> None:
     try: 
