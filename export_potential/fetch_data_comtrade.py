@@ -1,5 +1,6 @@
 import sys
 import pandas as pd
+import comtradeapicall
 import requests
 
 def get_api_key(filepath="api_key.txt") -> str:
@@ -13,14 +14,23 @@ def get_api_key(filepath="api_key.txt") -> str:
     except FileNotFoundError:
         raise FileNotFoundError(f"'{filepath}' file is missing.")
 
-def fetch_data(api_key) -> pd.Dataframe:
-    data = {
-    "data1": [420, 380, 390],
-    "data2": [50, 40, 45]
-    }
-    df = pd.DataFrame(data)
-    print(df.head())
-    return df
+def get_all_country() -> str:
+    data = pd.read_parquet("./data/reporter.parquet")
+    data = data[pd.isna(data["entryExpiredDate"])]
+    country_list = data["id"].astype(str).to_list()
+    
+    return ",".join(country_list)
+
+def fetch_data(api_key, product_code="TOTAL,260300", year="2025") -> pd.Dataframe:
+    all_goods = "TOTAL," + product_code
+
+    data = comtradeapicall.getFinalData(api_key, typeCode='C', freqCode='A', clCode='HS', period=year,
+                                    reporterCode=get_all_country(), cmdCode=all_goods, flowCode='X', partnerCode='0',
+                                    partner2Code=None,
+                                    customsCode=None, motCode='0', maxRecords=2500, format_output='JSON',
+                                    aggregateBy=None, breakdownMode='classic', countOnly=False, includeDesc=False)
+
+    return pd.DataFrame(data)
 
 def save_data(data, filepath="data/data.parquet") -> None:
     try: 
@@ -33,6 +43,7 @@ def main():
     try:
         api_key = get_api_key()
         data = fetch_data(api_key)
+        print(data.head())
         save_data(data)
 
     except FileNotFoundError as e:
