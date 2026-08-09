@@ -1,16 +1,22 @@
 import plotly.express as px
+import pandas as pd
 
 # 1. Charger les données d'exemple (Gapminder)
-df = px.data.gapminder().query("year == 2007")
+df = pd.read_parquet("./data/clean_data.parquet")
+
+df = df[df["cmdCode"]!="TOTAL"]
+print(df.head())
+
+df['RSCA'] = (df['RCA'] - 1) / (df['RCA'] + 1)
 
 # 2. Créer la carte choroplèthe
 fig = px.choropleth(
     df,
-    locations="iso_alpha",       # Code ISO du pays (ex: 'FRA', 'USA')
-    color="lifeExp",            # La colonne qui définit la couleur
-    hover_name="country",       # Le nom du pays affiché au survol
-    color_continuous_scale=px.colors.sequential.Plasma, # Palette de couleurs
-    title="Espérance de vie mondiale (2007)"
+    locations="reporterCodeIsoAlpha3",
+    color="RSCA",            # La colonne qui définit la couleur
+    hover_name="text",       
+    color_continuous_scale=px.colors.sequential.haline, # Palette de couleurs
+    title="RSCA by country for copper product"
 )
 
 # 3. Personnaliser la mise en page (optionnel)
