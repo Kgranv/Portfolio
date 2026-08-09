@@ -21,7 +21,7 @@ def get_all_country() -> str:
     
     return ",".join(country_list)
 
-def fetch_data(api_key, product_code="TOTAL,260300", year="2025") -> pd.Dataframe:
+def fetch_data(api_key, product_code="260300", year="2025") -> pd.Dataframe:
     all_goods = "TOTAL," + product_code
     try:
         data = comtradeapicall.getFinalData(api_key, typeCode='C', freqCode='A', clCode='HS', period=year,
@@ -29,15 +29,25 @@ def fetch_data(api_key, product_code="TOTAL,260300", year="2025") -> pd.Datafram
                                         partner2Code=None,
                                         customsCode=None, motCode='0', maxRecords=2500, format_output='JSON',
                                         aggregateBy=None, breakdownMode='classic', countOnly=False, includeDesc=False)
-        if not data:
-            raise requests.exceptions.RequestException("No data return with the request")
+
+        if isinstance(data, pd.DataFrame):
+            if data.empty:
+                raise requests.exceptions.RequestException(
+                    "No data returned with the request"
+                )
+            return data
+
+        if data is None or len(data) == 0:
+            raise requests.exceptions.RequestException(
+                "No data returned with the request"
+            )
         return pd.DataFrame(data)
 
     except requests.exceptions.RequestException:
         raise requests.exceptions.RequestException("Something went wrong with the request")
     
 
-def save_data(data, filepath="data/data.parquet") -> None:
+def save_data(data, filepath="./data/data.parquet") -> None:
     try: 
         data.to_parquet(filepath, engine='auto', compression='snappy', index=False)
         print(f"Data saved in file : '{filepath}'")
@@ -47,9 +57,10 @@ def save_data(data, filepath="data/data.parquet") -> None:
 def main():
     try:
         api_key = get_api_key()
-        data = fetch_data(api_key)
+        data = fetch_data(api_key, "270900")
         print(data.head())
-        save_data(data)
+
+        save_data(data, "./data/COMTRADE_OILS_2025.parquet")
 
     except FileNotFoundError as e:
         print(f"[File Error] {e}", file=sys.stderr)
