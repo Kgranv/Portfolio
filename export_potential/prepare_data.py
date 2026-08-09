@@ -28,7 +28,7 @@ def add_quantity_description(df) -> pd.DataFrame:
     df.rename(columns={'qtyAbbr': 'qtyUnit'}, inplace=True)
     return df
 
-def calculate_RCA(df) -> pd.DataFrame:
+def calculate_RCA_RSCA(df) -> pd.DataFrame:
     all_export_world = df[df["cmdCode"]=="TOTAL"][["reporterCode","primaryValue"]]
     goods_export_world = df[df["cmdCode"]!="TOTAL"][["reporterCode","primaryValue"]]
 
@@ -41,16 +41,24 @@ def calculate_RCA(df) -> pd.DataFrame:
     goods_export_world["RCA"] = ((goods_export_world["primaryValue"]/all_export_world["primaryValue"])/(value_goods_export_world/value_all_export_world))
     all_export_world["RCA"] = np.nan
 
+
+    goods_export_world['RSCA'] = (goods_export_world['RCA'] - 1) / (goods_export_world['RCA'] + 1)
+    all_export_world["RSCA"] = np.nan
+
     mask = df["cmdCode"] == "TOTAL"
     df.loc[mask, "RCA"] = df.loc[mask, "reporterCode"].map(all_export_world["RCA"])
+    df.loc[mask, "RSCA"] = df.loc[mask, "reporterCode"].map(all_export_world["RSCA"])
+
+    # Pour le reste (via goods_export_world)
     df.loc[~mask, "RCA"] = df.loc[~mask, "reporterCode"].map(goods_export_world["RCA"])
+    df.loc[~mask, "RSCA"] = df.loc[~mask, "reporterCode"].map(goods_export_world["RSCA"])
     return df
 
 def convert_data(data_filtered) -> pd.DataFrame:
     data_converted = add_iso_code(data_filtered)
     data_converted = add_goods_description(data_converted)
     data_converted = add_quantity_description(data_converted)
-    data_converted = calculate_RCA(data_converted)
+    data_converted = calculate_RCA_RSCA(data_converted)
     return data_converted
 
 def main():
