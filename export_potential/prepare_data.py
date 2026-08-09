@@ -63,10 +63,13 @@ def convert_data(data_filtered) -> pd.DataFrame:
     return data_converted
 
 def main():
-    raw_data = get_raw_data("./data/data.parquet")
-    data_filtered = filter_data(raw_data)
-    data_converted = convert_data(data_filtered)
-    data_converted.to_parquet("./data/clean_data.parquet",engine='auto', compression='snappy', index=False)
+    files = ["RAW_COMTRADE_COCOA_2022","RAW_COMTRADE_COPPER_2022","RAW_COMTRADE_LITHIUM_2022","RAW_COMTRADE_OILS_2022","RAW_COMTRADE_WOOD_2022"]
+
+    for file in files:
+        raw_data = get_raw_data(f"./data/raw/{file}.parquet")
+        data_filtered = filter_data(raw_data)
+        data_converted = convert_data(data_filtered)
+        data_converted.to_parquet(f"./data/clean/{file.strip("RAW_")}.parquet",engine='auto', compression='snappy', index=False)
 
 
 if __name__ == "__main__":
