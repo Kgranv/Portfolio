@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 import comtradeapicall
 import requests
+import time
 
 def get_api_key(filepath="api_key.txt") -> str:
     try:
@@ -57,10 +58,14 @@ def save_data(data, filepath="./data/data.parquet") -> None:
 def main():
     try:
         api_key = get_api_key()
-        data = fetch_data(api_key, "270900")
-        print(data.head())
+        cmdCode_Dict = {"260300":"COPPER","180100":"COCOA","282520":"LITHIUM","270900":"OILS","4403":"WOOD"}
+        year = "2022"
 
-        save_data(data, "./data/COMTRADE_OILS_2025.parquet")
+        for cmdCode,goods in cmdCode_Dict.items():
+            data = fetch_data(api_key, cmdCode, year)
+            print(data.head())
+            save_data(data, f"./data/raw/RAW_COMTRADE_{goods}_{year}.parquet")
+            time.sleep(3)
 
     except FileNotFoundError as e:
         print(f"[File Error] {e}", file=sys.stderr)
