@@ -30,7 +30,7 @@ def fetch_data(api_key, product_code="TOTAL,260300", year="2025") -> pd.Datafram
                                         customsCode=None, motCode='0', maxRecords=2500, format_output='JSON',
                                         aggregateBy=None, breakdownMode='classic', countOnly=False, includeDesc=False)
         if not data:
-            raise requests.exceptions.RequestException("Something went wrong with the request")
+            raise requests.exceptions.RequestException("No data return with the request")
         return pd.DataFrame(data)
 
     except requests.exceptions.RequestException:
