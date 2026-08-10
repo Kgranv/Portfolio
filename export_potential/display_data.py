@@ -40,9 +40,6 @@ def data_for_treemap(df) -> pd.DataFrame:
     value_top20 = top20["primaryValue"].sum()
     value_other = value_world - value_top20
 
-    test_dict = dict(zip(top20["reporterCode"], top20["reporterCodeIsoAlpha3"]))
-    print(f"reporterCode_Dict = {repr(test_dict)}")
-
     treemap_df = pd.concat(
         [
             top20[["reporterCodeIsoAlpha3", "countryName", "primaryValue"]],

@@ -8,17 +8,25 @@ def get_raw_data(filepath) -> pd.Dataframe:
     return pd.read_parquet(filepath)
 
 def filter_data(raw_data) -> pd.DataFrame:
-    data_filtered = raw_data[["period","reporterCode","cmdCode","qty","qtyUnitCode","primaryValue"]]
+    data_filtered = raw_data[["period","reporterCode","cmdCode","qty","qtyUnitCode","primaryValue","partnerCode"]]
     return data_filtered
 
 def add_iso_code(df) -> pd.DataFrame:
     reporter_data = pd.read_parquet("./data/reporter.parquet")
+    partner_data = pd.read_parquet("./data/partner.parquet")
 
     df = df.merge(reporter_data[["reporterCode", "reporterCodeIsoAlpha3", "text", "isGroup"]],on="reporterCode",how="inner")
 
     df = df[df["isGroup"] != True].drop(columns=["isGroup"])
 
     df.rename(columns={"text": "countryName"}, inplace=True)
+
+    df = df.merge(partner_data[["PartnerCode", "PartnerCodeIsoAlpha3", "text", "isGroup"]],left_on="partnerCode", right_on="PartnerCode",how="inner")
+    df = df.drop(columns=["PartnerCode"])
+
+    df = df[(df["isGroup"] != True) & (df["partnerCode"] != "0") & (df["isGroup"] != 0)].drop(columns=["isGroup"])
+
+    df.rename(columns={"text": "partnerName"}, inplace=True)
     return df
 
 def add_goods_description(df) -> pd.DataFrame:
@@ -60,11 +68,11 @@ def calculate_RCA_RSCA(df) -> pd.DataFrame:
     df.loc[~mask, "RSCA"] = df.loc[~mask, "reporterCode"].map(goods_export_world["RSCA"])
     return df
 
-def convert_data(data_filtered, skip_RCA = False) -> pd.DataFrame:
+def convert_data(data_filtered, isCountry = False) -> pd.DataFrame:
     data_converted = add_iso_code(data_filtered)
     data_converted = add_goods_description(data_converted)
     data_converted = add_quantity_description(data_converted)
-    if skip_RCA:
+    if isCountry:
         pass
     else:
         data_converted = calculate_RCA_RSCA(data_converted)
@@ -84,7 +92,7 @@ def main():
             raw_data = get_raw_data(element)
             data_filtered = filter_data(raw_data)
 
-            data_converted = convert_data(data_filtered, skip_RCA=is_in_subdirectory)
+            data_converted = convert_data(data_filtered, isCountry=is_in_subdirectory)
 
             new_filename = rel_path.name.replace("RAW_", "")
 
