@@ -13,8 +13,12 @@ def filter_data(raw_data) -> pd.DataFrame:
 
 def add_iso_code(df) -> pd.DataFrame:
     reporter_data = pd.read_parquet("./data/reporter.parquet")
-    df = df.merge(reporter_data[["reporterCode", "reporterCodeIsoAlpha3", "text"]], on="reporterCode", how="inner")
-    df.rename(columns={'text': 'countryName'}, inplace=True)
+
+    df = df.merge(reporter_data[["reporterCode", "reporterCodeIsoAlpha3", "text", "isGroup"]],on="reporterCode",how="inner")
+
+    df = df[df["isGroup"] != True].drop(columns=["isGroup"])
+
+    df.rename(columns={"text": "countryName"}, inplace=True)
     return df
 
 def add_goods_description(df) -> pd.DataFrame:
