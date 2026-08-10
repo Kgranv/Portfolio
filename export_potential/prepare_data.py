@@ -4,6 +4,7 @@ import country_converter as coco
 import comtradeapicall
 from pathlib import Path
 
+
 def get_raw_data(filepath) -> pd.Dataframe:
     return pd.read_parquet(filepath)
 
@@ -24,7 +25,10 @@ def add_iso_code(df) -> pd.DataFrame:
     df = df.merge(partner_data[["PartnerCode", "PartnerCodeIsoAlpha3", "text", "isGroup"]],left_on="partnerCode", right_on="PartnerCode",how="inner")
     df = df.drop(columns=["PartnerCode"])
 
-    df = df[(df["isGroup"] != True) & (df["partnerCode"] != "0") & (df["isGroup"] != 0)].drop(columns=["isGroup"])
+    is_not_group = ~df["isGroup"]
+    is_world = df["partnerCode"].isin([0, "0"])
+
+    df = df[is_not_group | is_world].drop(columns=["isGroup"])
 
     df.rename(columns={"text": "partnerName"}, inplace=True)
     return df
