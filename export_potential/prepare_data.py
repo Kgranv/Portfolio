@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import country_converter as coco
 import comtradeapicall
+from pathlib import Path
 
 def get_raw_data(filepath) -> pd.Dataframe:
     return pd.read_parquet(filepath)
@@ -55,22 +56,40 @@ def calculate_RCA_RSCA(df) -> pd.DataFrame:
     df.loc[~mask, "RSCA"] = df.loc[~mask, "reporterCode"].map(goods_export_world["RSCA"])
     return df
 
-def convert_data(data_filtered) -> pd.DataFrame:
+def convert_data(data_filtered, skip_RCA = False) -> pd.DataFrame:
     data_converted = add_iso_code(data_filtered)
     data_converted = add_goods_description(data_converted)
     data_converted = add_quantity_description(data_converted)
-    data_converted = calculate_RCA_RSCA(data_converted)
+    if skip_RCA:
+        pass
+    else:
+        data_converted = calculate_RCA_RSCA(data_converted)
     return data_converted
 
 def main():
-    files = ["RAW_COMTRADE_COCOA_2022","RAW_COMTRADE_COPPER_2022","RAW_COMTRADE_LITHIUM_2022","RAW_COMTRADE_OILS_2022","RAW_COMTRADE_WOOD_2022"]
+    dossier = Path("./data/raw")
+    clean_dir = Path("./data/clean")
+    clean_dir.mkdir(parents=True, exist_ok=True)
 
-    for file in files:
-        raw_data = get_raw_data(f"./data/raw/{file}.parquet")
-        data_filtered = filter_data(raw_data)
-        data_converted = convert_data(data_filtered)
-        data_converted.to_parquet(f"./data/clean/{file.strip("RAW_")}.parquet",engine='auto', compression='snappy', index=False)
+    for element in dossier.rglob("*"):
+        if element.is_file():
+            rel_path = element.relative_to(dossier)
 
+            is_in_subdirectory = len(rel_path.parts) > 1
+
+            raw_data = get_raw_data(element)
+            data_filtered = filter_data(raw_data)
+
+            data_converted = convert_data(data_filtered, skip_RCA=is_in_subdirectory)
+
+            new_filename = rel_path.name.replace("RAW_", "")
+
+            # Si le fichier était dans un sous-dossier, on recrée la même structure dans /clean
+            output_path = clean_dir / rel_path.parent / new_filename
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+
+            data_converted.to_parquet(output_path, engine="auto", compression="snappy", index=False)
+            print(f"{element} converted -> {output_path}")
 
 if __name__ == "__main__":
     main()
