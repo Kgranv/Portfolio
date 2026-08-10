@@ -40,6 +40,9 @@ def data_for_treemap(df) -> pd.DataFrame:
     value_top20 = top20["primaryValue"].sum()
     value_other = value_world - value_top20
 
+    test_dict = dict(zip(top20["reporterCode"], top20["reporterCodeIsoAlpha3"]))
+    print(f"reporterCode_Dict = {repr(test_dict)}")
+
     treemap_df = pd.concat(
         [
             top20[["reporterCodeIsoAlpha3", "countryName", "primaryValue"]],
@@ -99,10 +102,11 @@ filepaths = [
     "./data/clean/COMTRADE_LITHIUM_2022.parquet",
     "./data/clean/COMTRADE_WOOD_2022.parquet",
     "./data/clean/COMTRADE_COCOA_2022.parquet",
+    "./data/clean/COMTRADE_WHEAT_2022.parquet",
 ]
 
 # Noms personnalisés pour les boutons (ex: extraits du fichier ou manuels)
-labels_boutons = ["Oils"," Copper", "Lithium", "Wood", "Cocoa"]  # Ajoutez un libellé par fichier dans filepaths
+labels_boutons = ["Oils"," Copper", "Lithium", "Wood", "Cocoa", "WHEAT"]  # Ajoutez un libellé par fichier dans filepaths
 
 chloro_df_list = []
 treemap_df_list = []

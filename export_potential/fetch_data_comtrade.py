@@ -71,8 +71,8 @@ def main():
         # reporterCode_Dict = None # None for all country
         
         # For oils
-        # cmdCode_Dict = {"270900":"OILS"} 
-        # reporterCode_Dict = {682: 'SAU', 784: 'ARE', 124: 'CAN', 842: 'USA', 368: 'IRQ', 414: 'KWT', 579: 'NOR', 566: 'NGA', 398: 'KAZ', 76: 'BRA', 24: 'AGO', 484: 'MEX', 512: 'OMN', 826: 'GBR', 364: 'IRN', 328: 'GUY', 31: 'AZE', 634: 'QAT', 170: 'COL', 218: 'ECU'}
+        cmdCode_Dict = {"270900":"OILS"} 
+        reporterCode_Dict = {682: 'SAU', 784: 'ARE', 124: 'CAN', 842: 'USA', 368: 'IRQ', 414: 'KWT', 579: 'NOR', 566: 'NGA', 398: 'KAZ', 76: 'BRA', 24: 'AGO', 484: 'MEX', 512: 'OMN', 826: 'GBR', 364: 'IRN', 328: 'GUY', 31: 'AZE', 634: 'QAT', 170: 'COL', 218: 'ECU'}
 
         # For copper
         # cmdCode_Dict = {"260300":"COPPER"} 
@@ -91,9 +91,9 @@ def main():
         # reporterCode_Dict = {384: 'CIV', 288: 'GHA', 218: 'ECU', 566: 'NGA', 120: 'CMR', 528: 'NLD', 458: 'MYS', 604: 'PER', 180: 'COD', 598: 'PNG', 800: 'UGA', 360: 'IDN', 56: 'BEL', 233: 'EST', 450: 'MDG', 834: 'TZA', 276: 'DEU', 768: 'TGO', 170: 'COL', 842: 'USA'}
 
         # For wheat
-        cmdCode_Dict = {"110100":"WHEAT"} 
-        reporterCode_Dict = {792: 'TUR', 398: 'KAZ', 276: 'DEU', 699: 'IND', 860: 'UZB', 380: 'ITA', 32: 'ARG', 124: 'CAN', 842: 'USA', 56: 'BEL', 818: 'EGY', 826: 'GBR', 704: 'VNM', 251: 'FRA', 512: 'OMN', 392: 'JPN', 528: 'NLD', 348: 'HUN', 784: 'ARE', 156: 'CHN'}
-        
+        # cmdCode_Dict = {"110100":"WHEAT"} 
+        # reporterCode_Dict = {792: 'TUR', 398: 'KAZ', 276: 'DEU', 699: 'IND', 860: 'UZB', 380: 'ITA', 32: 'ARG', 124: 'CAN', 842: 'USA', 56: 'BEL', 818: 'EGY', 826: 'GBR', 704: 'VNM', 251: 'FRA', 512: 'OMN', 392: 'JPN', 528: 'NLD', 348: 'HUN', 784: 'ARE', 156: 'CHN'}
+
         year = "2022"
 
         for cmdCode,goods in cmdCode_Dict.items():
